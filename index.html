@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plateau RH — Thibaut Casimir</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:    #c9a84c;
+      --forest:  #2d4a3e;
+      --navy:    #131b2e;
+      --navy-2:  #1a2440;
+      --font-h:  'Cormorant Garamond', Georgia, serif;
+      --font-b:  'DM Sans', sans-serif;
+      --ease:    0.25s cubic-bezier(.4,0,.2,1);
+    }
+
+    body {
+      font-family: var(--font-b);
+      background: var(--navy);
+      min-height: 100vh;
+      color: #e8e3db;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: rgba(10, 14, 26, 0.95);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,.5);
+      border-bottom: 1px solid rgba(201,168,76,.2);
+    }
+    .monogram {
+      width: 44px; height: 44px;
+      background: var(--gold);
+      color: #fff;
+      font-family: var(--font-h);
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    header h1 {
+      font-family: var(--font-h);
+      font-size: 1.2rem;
+      color: #fff;
+      font-weight: 300;
+      flex: 1;
+    }
+    header p { font-size: .72rem; color: rgba(255,255,255,.45); }
+    .admin-btn {
+      color: rgba(255,255,255,.25);
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: color var(--ease);
+    }
+    .admin-btn:hover { color: var(--gold); }
+
+    /* ── BARRE DE JEU ── */
+    .game-bar {
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .pos-box { text-align: center; }
+    .pos-label {
+      font-size: .58rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: rgba(255,255,255,.35);
+      display: block;
+    }
+    .pos-name {
+      font-family: var(--font-h);
+      font-size: .95rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .dice-wrap { display: flex; align-items: center; gap: 10px; }
+    #dice { font-size: 1.9rem; display: inline-block; line-height: 1; }
+    #dice.spin { animation: spin .55s ease-out; }
+    @keyframes spin {
+      0%  { transform: rotate(0) scale(1); }
+      30% { transform: rotate(-25deg) scale(1.3); }
+      60% { transform: rotate(20deg) scale(1.1); }
+      100%{ transform: rotate(0) scale(1); }
+    }
+
+    .btn {
+      border: none;
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-family: var(--font-b);
+      font-size: .75rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      transition: all var(--ease);
+    }
+    .btn-primary { background: var(--gold); color: #fff; }
+    .btn-primary:hover { background: #b8943e; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.2);
+      color: rgba(255,255,255,.7);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.4); }
+
+    .prog-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .prog-bar {
+      width: 130px; height: 5px;
+      background: rgba(255,255,255,.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #e8c96a);
+      border-radius: 10px;
+      transition: width .55s cubic-bezier(.4,0,.2,1);
+    }
+    .prog-label { font-size: .58rem; color: rgba(255,255,255,.35); }
+
+    /* ── SECTIONS INFO ── */
+    .info-sections {
+      display: flex;
+      gap: 18px;
+      max-width: min(820px, 96vw);
+      margin: 24px auto 0;
+      padding: 0 16px;
+      flex-wrap: wrap;
+    }
+    .info-card {
+      flex: 1;
+      min-width: 240px;
+      background: rgba(255,255,255,.05);
+      border-radius: 14px;
+      padding: 22px 26px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-left: 4px solid var(--gold);
+      transition: transform var(--ease), background var(--ease);
+    }
+    .info-card:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.08);
+    }
+    .info-icon { font-size: 1.5rem; margin-bottom: 10px; }
+    .info-card h2 {
+      font-family: var(--font-h);
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 9px;
+      font-weight: 600;
+    }
+    .info-card p {
+      font-size: .83rem;
+      color: rgba(255,255,255,.6);
+      line-height: 1.75;
+    }
+
+    /* ── PLATEAU ── */
+    .board-wrap {
+      padding: 24px 16px 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .board-container {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: min(820px, 96vw);
+    }
+    .board-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 0 2px rgba(201,168,76,.3);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ── HOTSPOTS ── */
+    .hs {
+      position: absolute;
+      cursor: pointer;
+      border-radius: 6px;
+      background: transparent;
+      transition: background var(--ease), box-shadow var(--ease);
+      z-index: 10;
+    }
+    .hs:hover {
+      background: rgba(201,168,76,.22);
+      box-shadow: inset 0 0 0 2px rgba(201,168,76,.8);
+    }
+    .hs.active {
+      background: rgba(201,168,76,.15);
+      box-shadow: inset 0 0 0 2.5px var(--gold);
+      animation: glow 1.5s ease-in-out infinite;
+    }
+    @keyframes glow {
+      0%,100% { box-shadow: inset 0 0 0 2.5px var(--gold), 0 0 10px rgba(201,168,76,.3); }
+      50%      { box-shadow: inset 0 0 0 2.5px var(--gold), 0 0 22px rgba(201,168,76,.65); }
+    }
+
+    /* ── PION ── */
+    #pawn {
+      position: absolute;
+      font-size: clamp(.9rem, 2.2vw, 1.5rem);
+      z-index: 20;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: left .38s cubic-bezier(.4,0,.2,1), top .38s cubic-bezier(.4,0,.2,1);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.6));
+    }
+
+    /* ── MODAL ── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(5, 8, 18, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadein .2s ease;
+    }
+    .overlay.hidden { display: none; }
+    @keyframes fadein { from { opacity:0 } to { opacity:1 } }
+
+    .modal {
+      background: #1e2b45;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px;
+      padding: 42px 38px;
+      max-width: 530px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 32px 100px rgba(0,0,0,.5);
+      animation: slideup .28s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes slideup {
+      from { transform: translateY(28px); opacity:0 }
+      to   { transform: translateY(0); opacity:1 }
+    }
+    .modal-x {
+      position: absolute; top: 16px; right: 18px;
+      background: none; border: none;
+      font-size: 1rem; color: rgba(255,255,255,.35);
+      cursor: pointer; width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--ease);
+    }
+    .modal-x:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .modal-icon { font-size: 2.4rem; margin-bottom: 12px; }
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .tag {
+      background: rgba(201,168,76,.15);
+      color: var(--gold);
+      border-radius: 100px;
+      padding: 3px 11px;
+      font-size: .63rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .modal-title {
+      font-family: var(--font-h);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 14px;
+      line-height: 1.3;
+    }
+    .modal-body { font-size: .91rem; color: rgba(255,255,255,.65); line-height: 1.8; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 18px;
+      font-size: .72rem;
+      color: rgba(255,255,255,.25);
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width:600px) {
+      .modal { padding: 26px 18px; }
+      .modal-title { font-size: 1.2rem; }
+      .game-bar { gap: 12px; }
+      .info-sections { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div id="overlay" class="overlay hidden">
+  <div class="modal">
+    <button class="modal-x" id="modal-x">✕</button>
+    <div class="modal-icon" id="modal-icon"></div>
+    <div class="modal-tags" id="modal-tags"></div>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <p class="modal-body" id="modal-body"></p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="monogram">TC</div>
+  <div>
+    <h1>Plateau de mon Parcours de Vie et RH</h1>
+    <p>Cliquez sur une case · Lancez le dé · Explorez</p>
+  </div>
+  <a href="admin.html" class="admin-btn" title="Administration">⚙</a>
+</header>
+
+<!-- BARRE DE JEU -->
+<div class="game-bar">
+  <div class="pos-box">
+    <span class="pos-label">Position</span>
+    <span class="pos-name" id="pos-name">DÉPART</span>
+  </div>
+  <div class="dice-wrap">
+    <span id="dice">🎲</span>
+    <button class="btn btn-primary" id="btn-roll">Lancer le dé</button>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="prog-label" id="prog-label">0 / 23 cases</span>
+  </div>
+  <button class="btn btn-ghost" id="btn-reset">↺ Recommencer</button>
+</div>
+
+<!-- SECTIONS INFO -->
+<div class="info-sections">
+
+  <div class="info-card">
+    <div class="info-icon">🎲</div>
+    <h2>Règles du jeu</h2>
+    <p>Lancez le dé pour avancer case par case et découvrir mon parcours automatiquement. Ou cliquez directement sur n'importe quelle case du plateau pour l'explorer librement. Chaque case ouvre une vignette avec le détail de cette étape.</p>
+  </div>
+
+  <div class="info-card">
+    <div class="info-icon">💡</div>
+    <h2>Pourquoi ce plateau ?</h2>
+    <p>Parce qu'un CV classique ne capture pas la trajectoire. Ce plateau est une invitation à explorer mon parcours de façon active : les choix, les apprentissages, les influences et la vision qui guident ma pratique des Ressources Humaines.</p>
+  </div>
+
+</div>
+
+<!-- PLATEAU -->
+<div class="board-wrap">
+  <div class="board-container" id="board-container">
+
+    <img src="board.png" alt="Plateau RH Thibaut Casimir" class="board-img" id="board-img" />
+
+    <!-- RANGÉE BAS — droite vers gauche -->
+    <div class="hs" data-id="depart"       style="left:75.15%;top:70.82%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="references2"  style="left:65.86%;top:70.82%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="alternance2"  style="left:56.57%;top:70.82%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="gare1"        style="left:47.28%;top:70.82%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="references1"  style="left:37.99%;top:70.82%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="alternance1"  style="left:28.70%;top:70.82%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="decision"     style="left:19.41%;top:70.82%;width:9.29%;height:9.64%"></div>
+
+    <!-- COLONNE GAUCHE — bas vers haut -->
+    <div class="hs" data-id="personnalite2" style="left:19.41%;top:61.18%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="master2"       style="left:19.41%;top:51.54%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="gare2"         style="left:19.41%;top:41.91%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="personnalite1" style="left:19.41%;top:32.27%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="master1"       style="left:19.41%;top:22.63%;width:9.29%;height:9.64%"></div>
+
+    <!-- RANGÉE HAUT — gauche vers droite -->
+    <div class="hs" data-id="contact"  style="left:19.41%;top:12.99%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="travail1" style="left:28.70%;top:12.99%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="hobbies1" style="left:37.99%;top:12.99%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="gare3"    style="left:47.28%;top:12.99%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="travail2" style="left:56.57%;top:12.99%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="hobbies2" style="left:65.86%;top:12.99%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="vision"   style="left:75.15%;top:12.99%;width:9.29%;height:9.64%"></div>
+
+    <!-- COLONNE DROITE — haut vers bas -->
+    <div class="hs" data-id="ouvrages1"   style="left:75.15%;top:22.63%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="engagement1" style="left:75.15%;top:32.27%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="gare4"       style="left:75.15%;top:41.91%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="ouvrages2"   style="left:75.15%;top:51.54%;width:9.29%;height:9.64%"></div>
+    <div class="hs" data-id="engagement2" style="left:75.15%;top:61.18%;width:9.29%;height:9.64%"></div>
+
+    <!-- PION -->
+    <div id="pawn">🎯</div>
+
+  </div>
+</div>
+
+<footer>
+  © <span id="yr"></span> Thibaut Casimir —
+  <a href="https://www.linkedin.com" target="_blank">LinkedIn</a>
+</footer>
+
+<script>
+const CASES = {
+  depart:       { icon:"🚩", label:"DÉPART",         titre:"Chaque parcours commence par un choix.", contenu:"Bienvenue sur le plateau de Thibaut Casimir. Ce jeu interactif retrace mon parcours RH, mes convictions et ma vision du métier. Lancez le dé pour explorer.", tags:["Parcours","Introduction"] },
+  alternance1:  { icon:"💼", label:"ALTERNANCE",      titre:"Learning Business Partner — Airbus", contenu:"Mon alternance chez Airbus m'a plongé au cœur d'une fonction RH stratégique. J'ai accompagné des managers dans l'identification des besoins de développement, conçu des parcours de formation et mesuré l'impact sur la performance collective.", tags:["Alternance","Airbus","L&D"] },
+  alternance2:  { icon:"💼", label:"ALTERNANCE",      titre:"Learning Business Partner — Airbus (suite)", contenu:"En deuxième année, j'ai élargi mon périmètre : pilotage de projets RH transverses, animation de communautés apprenantes et contribution à la digitalisation des parcours de développement.", tags:["Alternance","Airbus","Digital RH"] },
+  references1:  { icon:"👤", label:"RÉFÉRENCES",      titre:"Personnalités qui m'inspirent", contenu:"Dave Ulrich pour sa vision systémique du Business Partner RH. Edgar Schein pour sa lecture de la culture organisationnelle. Simon Sinek pour l'ancrage du sens dans le leadership.", tags:["Références","Leadership"] },
+  references2:  { icon:"👤", label:"RÉFÉRENCES",      titre:"Personnalités qui m'inspirent", contenu:"Brené Brown pour l'importance de la vulnérabilité dans le leadership. Adam Grant pour sa recherche sur la générosité organisationnelle. Ces figures nourrissent ma vision d'un RH humain et performant.", tags:["Références","Psychologie"] },
+  gare1:        { icon:"✈️", label:"GARE 1",          titre:"Voyages et ouverture culturelle", contenu:"Chaque voyage est une école. Mes expériences à l'étranger ont renforcé mon intelligence interculturelle et ma capacité à naviguer dans la diversité — compétence centrale en RH international.", tags:["Voyage","Culture","Diversité"] },
+  gare2:        { icon:"✈️", label:"GARE 2",          titre:"Voyages et ouverture culturelle", contenu:"L'ouverture internationale ne se limite pas aux voyages : c'est une façon d'habiter le monde professionnel. Comprendre d'autres logiques culturelles affine la lecture des dynamiques humaines.", tags:["Voyage","International"] },
+  gare3:        { icon:"✈️", label:"GARE 3",          titre:"Voyages et ouverture culturelle", contenu:"Chaque territoire traversé a enrichi ma compréhension des pratiques RH locales et des différences de management selon les contextes culturels.", tags:["Voyage","Management interculturel"] },
+  gare4:        { icon:"✈️", label:"GARE 4",          titre:"Voyages et ouverture culturelle", contenu:"La dernière escale. Ces voyages représentent la synthèse de mon ouverture au monde : une curiosité permanente qui alimente mon regard sur les organisations et les hommes.", tags:["Voyage","Synthèse"] },
+  decision:     { icon:"🛤️", label:"DÉCISION DE VIE", titre:"Ces choix personnels qui ont transformé mon parcours.", contenu:"Choisir le Master RH après une L3 de psychologie, rejoindre Airbus en alternance : chaque décision a été un pari stratégique sur moi-même.", tags:["Choix","Stratégie personnelle"] },
+  personnalite1:{ icon:"🧠", label:"PERSONNALITÉ",    titre:"Traits au service de la performance", contenu:"Curiosité intellectuelle, orientation résultats, sens de l'écoute et capacité à structurer la complexité sont les traits qui me définissent. Ces traits influencent directement ma pratique RH.", tags:["Personnalité","Softskills"] },
+  personnalite2:{ icon:"🧠", label:"PERSONNALITÉ",    titre:"Traits au service de la performance", contenu:"Ma capacité à fédérer, à créer du lien et à maintenir une vision long terme dans des contextes d'incertitude est un atout central. Je combine rigueur analytique et intelligence relationnelle.", tags:["Leadership","Vision"] },
+  master1:      { icon:"🎓", label:"MASTER RH",       titre:"Projets, apprentissages et compétences RH", contenu:"Mon Master m'a permis de maîtriser les fondamentaux du droit social, de la GPEC, du recrutement stratégique et de la conduite du changement. Les projets académiques ont ancré ces apprentissages dans des cas réels.", tags:["Master","Compétences RH"] },
+  master2:      { icon:"🎓", label:"MASTER RH",       titre:"Projets, apprentissages et compétences RH", contenu:"Les mémoires, études de cas et travaux de groupe ont développé ma capacité à diagnostiquer des problématiques RH complexes et à proposer des solutions opérationnelles argumentées.", tags:["Master","Diagnostic RH"] },
+  contact:      { icon:"📬", label:"CONTACT",         titre:"Échangeons pour construire la suite.", contenu:"Vous souhaitez échanger sur un projet RH, une opportunité ou simplement discuter ? Je suis disponible. LinkedIn : [ton lien] | Email : [ton email]", tags:["Contact","Réseau"] },
+  travail1:     { icon:"💼", label:"TRAVAIL",         titre:"Résultats professionnels & reprise scolaire", contenu:"Après une première expérience professionnelle, j'ai fait le choix stratégique de reprendre des études pour monter en compétence. Cette décision témoigne de ma capacité à investir dans mon développement.", tags:["Expérience","Développement"] },
+  travail2:     { icon:"💼", label:"TRAVAIL",         titre:"Résultats professionnels & reprise scolaire", contenu:"Chaque poste occupé a été l'occasion de développer une expertise terrain que la théorie seule ne peut donner. J'ai appris à naviguer dans la complexité organisationnelle et à produire des résultats mesurables.", tags:["Résultats","Performance"] },
+  hobbies1:     { icon:"🧩", label:"HOBBIES",         titre:"Défis personnels, leviers professionnels", contenu:"Sport collectif, lecture, projets associatifs : mes loisirs nourrissent mes compétences professionnelles. La résilience acquise sur un terrain sportif se transfère naturellement en management.", tags:["Hobbies","Transfert"] },
+  hobbies2:     { icon:"🧩", label:"HOBBIES",         titre:"Défis personnels, leviers professionnels", contenu:"S'engager dans des défis personnels exigeants développe la maîtrise de soi et la gestion de l'incertitude : des qualités clés en RH.", tags:["Défi","Résilience"] },
+  vision:       { icon:"🗺️", label:"VISION RH",       titre:"Ma boussole RH pour demain", contenu:"Je crois en un RH stratégique, ancré dans la data, orienté impact humain et organisationnel. Ma vision : être un Business Partner qui réconcilie performance économique et épanouissement des collaborateurs.", tags:["Vision","Stratégie RH"] },
+  ouvrages1:    { icon:"📚", label:"OUVRAGES",        titre:"Lectures qui structurent", contenu:"« The HR Value Proposition » — Dave Ulrich. « Organizational Culture and Leadership » — Edgar Schein. « Thinking Fast and Slow » — Daniel Kahneman. Ces ouvrages ont structuré ma grille de lecture professionnelle.", tags:["Lecture","Références"] },
+  ouvrages2:    { icon:"📚", label:"OUVRAGES",        titre:"Lectures qui structurent", contenu:"« Drive » — Daniel Pink. « Good to Great » — Jim Collins. « Le Manager Minute » — Ken Blanchard. Ces lectures nourrissent ma pratique quotidienne du management.", tags:["Lecture","Management"] },
+  engagement1:  { icon:"🌱", label:"ENGAGEMENT",      titre:"Mes moteurs d'impact professionnel", contenu:"L'équité, le développement des talents et la transformation organisationnelle sont mes trois moteurs. Je m'engage dans des projets qui créent une valeur mesurable pour les individus et les organisations.", tags:["Engagement","Valeurs"] },
+  engagement2:  { icon:"🌱", label:"ENGAGEMENT",      titre:"Mes moteurs d'impact professionnel", contenu:"Au-delà du poste, ce qui me motive c'est l'impact : accompagner une transformation culturelle, aider un manager à mieux piloter son équipe, construire un dispositif de développement qui change réellement les trajectoires.", tags:["Engagement","Impact RH"] }
+};
+
+const ORDER = ["depart","references2","alternance2","gare1","references1","alternance1","decision","personnalite2","master2","gare2","personnalite1","master1","contact","travail1","hobbies1","gare3","travail2","hobbies2","vision","ouvrages1","engagement1","gare4","ouvrages2","engagement2"];
+const FACES = ["⚀","⚁","⚂","⚃","⚄","⚅"];
+let pos = 0, rolling = false;
+
+function openModal(id) {
+  const d = CASES[id]; if (!d) return;
+  document.getElementById("modal-icon").textContent  = d.icon;
+  document.getElementById("modal-title").textContent = d.titre;
+  document.getElementById("modal-body").textContent  = d.contenu;
+  const tEl = document.getElementById("modal-tags");
+  tEl.innerHTML = "";
+  (d.tags||[]).forEach(t => { const s=document.createElement("span"); s.className="tag"; s.textContent=t; tEl.appendChild(s); });
+  document.getElementById("overlay").classList.remove("hidden");
+}
+function closeModal() { document.getElementById("overlay").classList.add("hidden"); }
+
+function movePawn(idx) {
+  const hs = document.querySelector(`.hs[data-id="${ORDER[idx]}"]`);
+  const pawn = document.getElementById("pawn");
+  if (!hs||!pawn) return;
+  pawn.style.left = (parseFloat(hs.style.left) + parseFloat(hs.style.width)/2)  + "%";
+  pawn.style.top  = (parseFloat(hs.style.top)  + parseFloat(hs.style.height)/2) + "%";
+}
+
+function highlight(idx) {
+  document.querySelectorAll(".hs").forEach(e => e.classList.remove("active"));
+  const hs = document.querySelector(`.hs[data-id="${ORDER[idx]}"]`);
+  if (hs) hs.classList.add("active");
+  const d = CASES[ORDER[idx]];
+  document.getElementById("pos-name").textContent = d ? d.label : ORDER[idx].toUpperCase();
+}
+
+function updateProg() {
+  const pct = (pos/(ORDER.length-1))*100;
+  document.getElementById("prog-fill").style.width = pct+"%";
+  document.getElementById("prog-label").textContent = `${pos} / ${ORDER.length-1} cases`;
+}
+
+function roll() {
+  if (rolling) return;
+  rolling = true;
+  document.getElementById("btn-roll").disabled = true;
+  const dEl = document.getElementById("dice");
+  let n = 0;
+  const iv = setInterval(() => {
+    dEl.textContent = FACES[Math.floor(Math.random()*6)];
+    dEl.classList.add("spin");
+    if (++n >= 12) {
+      clearInterval(iv);
+      const result = Math.floor(Math.random()*6)+1;
+      dEl.textContent = FACES[result-1];
+      dEl.classList.remove("spin");
+      setTimeout(() => { advance(result); document.getElementById("btn-roll").disabled=false; rolling=false; }, 300);
+    }
+  }, 65);
+}
+
+function advance(steps) {
+  const target = (pos+steps)%ORDER.length;
+  let cur = pos;
+  const iv = setInterval(() => {
+    cur = (cur+1)%ORDER.length;
+    highlight(cur); movePawn(cur);
+    if (cur===target) { clearInterval(iv); pos=target; updateProg(); setTimeout(()=>openModal(ORDER[pos]),320); }
+  }, 230);
+}
+
+function reset() {
+  pos=0; highlight(0); movePawn(0); updateProg();
+  document.getElementById("dice").textContent="🎲";
+}
+
+function init() {
+  document.querySelectorAll(".hs").forEach(el => el.addEventListener("click", ()=>openModal(el.dataset.id)));
+  document.getElementById("modal-x").addEventListener("click", closeModal);
+  document.getElementById("overlay").addEventListener("click", e=>{ if(e.target.id==="overlay") closeModal(); });
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });
+  document.getElementById("btn-roll").addEventListener("click", roll);
+  document.getElementById("btn-reset").addEventListener("click", reset);
+  const img = document.getElementById("board-img");
+  const start = ()=>{ highlight(0); movePawn(0); updateProg(); };
+  img.complete ? start() : img.addEventListener("load", start);
+  document.getElementById("yr").textContent = new Date().getFullYear();
+}
+init();
+</script>
+</body>
+</html>
